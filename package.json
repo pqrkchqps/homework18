@@ -1,0 +1,38 @@
+{
+  "name": "the-news-project-case-pollock",
+  "version": "1.0.0",
+  "description": "All the News That's Fit to Scrape is an application that lets users view and leave comments on the latest news.",
+  "main": "server.js",
+  "scripts": {
+    "babel": "babel --presets es2015 server.js -o build/main.bundle.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kietosstarik/homework18.git"
+  },
+  "author": "Case",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kietosstarik/homework18"
+  },
+  "homepage": "https://github.com/kietosstarik/homework18#readme",
+  "dependencies": {
+    "axios": "^0.17.1",
+    "body-parser": "^1.18.2",
+    "cheerio": "^1.0.0-rc.2",
+    "express": "^4.16.2",
+    "express-handlebars": "^3.0.0",
+    "mongoose": "^4.13.9",
+    "request": "^2.83.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "chai": "^4.1.2",
+    "karma": "^2.0.0",
+    "mocha": "^4.1.0",
+    "morgan": "^1.9.0"
+  }
+}
