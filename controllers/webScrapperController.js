@@ -6,7 +6,8 @@ let db = require("../models"); // Require all models
 
 /////////////////////////////////////////////// /* Mongoose Configuration */ ////////////////////////////////////////////////////////
 mongoose.Promise = Promise; // Set mongoose to leverage Built in JavaScript ES6 Promises
-mongoose.connect("mongodb://heroku_n498q09l:nqhsgor6hvbhfudh35mk0npfo0@ds147267.mlab.com:47267/heroku_n498q09l", { // Connect to the Mongo DB
+mongoose.connect("mongodb://localhost/mongohomework18", {
+  //"mongodb://heroku_n498q09l:nqhsgor6hvbhfudh35mk0npfo0@ds147267.mlab.com:47267/heroku_n498q09l", { // Connect to the Mongo DB
   useMongoClient: true
 });
 
@@ -34,34 +35,14 @@ module.exports = (app) => { // Export Module Containing Routes. Called from Serv
       // Then, we load that into cheerio and save it to $ for a shorthand selector
       let $ = cheerio.load(response.data);
 
-      let handlebarsObject = {
-        data: []
-      }; // Initialize Empty Object to Store Cheerio Objects
-
-      $("article").each((i, element) => { // Use Cheerio to Search for all Article HTML Tags
-        //NPR Only Returns Low Res Images to the Web Scrapper. A little String Manipulation is Done to Get High Res Images
-        let lowResImageLink = $(element).children('.item-image').children('.imagewrap').children('a').children('img').attr('src');
-
-        if (lowResImageLink) {
-
-          let imageLength = lowResImageLink.length;
-          let highResImage = lowResImageLink.substr(0, imageLength - 11) + "800-c100.jpg";
-
-          handlebarsObject.data.push({ // Store Scrapped Data into handlebarsObject
-            headline: $(element).children('.item-info').children('.title').children('a').text(),
-            summary: $(element).children('.item-info').children('.teaser').children('a').text(),
-            url: $(element).children('.item-info').children('.title').children('a').attr('href'),
-            imageURL: highResImage,
-            slug: $(element).children('.item-info').children('.slug-wrap').children('.slug').children('a').text(),
-            comments: null
-          }); // Store HTML Data as an Object within an Object
-        } // End of If Else
-      }); // End of Article Serch
+      let handlebarsObject = scrapeCheerioArticles($);
 
       // Return Scrapped Data to Handlebars for Rendering
       res.render("index", handlebarsObject);
     });
   });
+
+
 
   // Saved Article Route
   app.get("/api/savedArticles", (req, res) => {
@@ -86,6 +67,8 @@ module.exports = (app) => { // Export Module Containing Routes. Called from Serv
     db.Articles. // Save the Article to the Database
     findOne({url: articleObject.url}). // Look for an Existing Article with the Same URL
     then(function(response) {
+      console.log(response)
+      console.log(articleObject)
 
       if (response === null) { // Only Create Article if it has not been Created
         db.Articles.create(articleObject).then((response) => console.log(" ")).catch(err => res.json(err));
@@ -188,3 +171,30 @@ module.exports = (app) => { // Export Module Containing Routes. Called from Serv
   }); // End of Post Populate Note
 
 } // End of Module Export
+
+function scrapeCheerioArticles($){
+  let handlebarsObject = {
+    data: []
+  }; // Initialize Empty Object to Store Cheerio Objects
+
+  $("article").each((i, element) => { // Use Cheerio to Search for all Article HTML Tags
+    //NPR Only Returns Low Res Images to the Web Scrapper. A little String Manipulation is Done to Get High Res Images
+    let lowResImageLink = $(element).children('.item-image').children('.imagewrap').children('a').children('img').attr('src');
+
+    if (lowResImageLink) {
+
+      let imageLength = lowResImageLink.length;
+      let highResImage = lowResImageLink.substr(0, imageLength - 11) + "800-c100.jpg";
+
+      handlebarsObject.data.push({ // Store Scrapped Data into handlebarsObject
+        headline: $(element).children('.item-info-wrap').children('.item-info').children('.title').children('a').text(),
+        summary: $(element).children('.item-info-wrap').children('.item-info').children('.teaser').children('a').text(),
+        url: $(element).children('.item-info-wrap').children('.item-info').children('.title').children('a').attr('href'),
+        imageURL: highResImage,
+        slug: $(element).children('.item-info-wrap').children('.item-info').children('.slug-wrap').children('.slug').children('a').text(),
+        comments: null
+      }); // Store HTML Data as an Object within an Object
+    } // End of If Else
+  }); // End of Article Serch
+  return handlebarsObject;
+}
